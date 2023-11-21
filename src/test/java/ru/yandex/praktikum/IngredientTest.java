@@ -1,39 +1,51 @@
 package ru.yandex.praktikum;
-import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
+
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 
-@RunWith(JUnitParamsRunner.class)
+@RunWith(Parameterized.class)
 public class IngredientTest {
-    private Ingredient ingredient;
-    final private String NAME = "Ингредиент";
-    final private float PRICE = 75;
 
-    @Before
-    public void setUp() {
-        ingredient = new Ingredient(IngredientType.SAUCE, NAME, PRICE);
-    }
+  private Ingredient ingredient;
+  private final IngredientType ingredientType;
+  private final String name;
+  private final float price;
+  private static final float DELTA = 0.1F;
 
-    @Test
-    public void getPrice() {
-        Assert.assertEquals("Получено неверное значение цены", PRICE, ingredient.getPrice(), 0.01);
-    }
+  public IngredientTest(IngredientType ingredientType, String name, float price) {
+    this.ingredientType = ingredientType;
+    this.name = name;
+    this.price = price;
+  }
 
-    @Test
-    public void getName() {
-        Assert.assertEquals("Получено неверное название ингредиента", NAME, ingredient.getName());
-    }
+  @Before
+  public void setUp() {
+    ingredient = new Ingredient(ingredientType, name, price);
+  }
 
-    @Test
-    @Parameters ({
-            "SAUCE",
-            "FILLING"
-    })
-    public void getType(String ingredientType) {
-        ingredient = new Ingredient(IngredientType.valueOf(ingredientType), NAME, PRICE);
-        Assert.assertEquals("Получен неверный тип ингредиента", IngredientType.valueOf(ingredientType), ingredient.getType());
-    }
+  @Parameterized.Parameters(name = "{index}: {0} - {1} - {2}")
+  public static Object[][] getDataEntry() {
+    return new Object[][]{
+        {IngredientType.SAUCE, "hot sauce", 100},
+        {IngredientType.FILLING, "sausage", 300},
+    };
+  }
+
+  @Test
+  public void getPrice() {
+    Assert.assertEquals("Получено неверное значение цены", price, ingredient.getPrice(), DELTA);
+  }
+
+  @Test
+  public void getName() {
+    Assert.assertEquals("Получено неверное название ингредиента", name, ingredient.getName());
+  }
+
+  @Test
+  public void getType() {
+    Assert.assertEquals("Получен неверный тип ингредиента", ingredientType, ingredient.getType());
+  }
 }
